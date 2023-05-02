@@ -49,8 +49,8 @@ const connection = mysql.createConnection({
   host: "node45888-godchesxtech.th1.proen.cloud",
   port: 3306,
   user: "root",
-  password: "Ches@ter0",
-  database: "GHOavq32961",
+  password: "GHOavq32961",
+  database: "godshop",
 });
 
 // var qry = "SELECT * FROM ADMIN";
