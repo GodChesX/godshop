@@ -1,0 +1,13 @@
+.btnBack{
+    margin-top: 30px;
+}
+.btnBackIcon{
+    margin-left: 20px;
+}
+.btnBackText{
+    position: absolute;
+    top: 32px;
+}
+.headerImg{
+    width: 100%;
+}
