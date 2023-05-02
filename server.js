@@ -41,11 +41,16 @@ const upload2 = multer({ storage: storage2 }); //add new
 // apply them
 
 const connection = mysql.createConnection({
-  host: "localhost",
+  // host: "localhost",
+  // port: 3306,
+  // user: "root",
+  // password: "Ches@ter0",
+  // database: "hawai",
+  host: "node45888-godchesxtech.th1.proen.cloud",
   port: 3306,
   user: "root",
   password: "Ches@ter0",
-  database: "hawai",
+  database: "GHOavq32961",
 });
 
 // var qry = "SELECT * FROM ADMIN";
