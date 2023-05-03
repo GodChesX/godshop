@@ -163,14 +163,14 @@ app.prepare().then(async () => {
     var username = request.body.username;
     var password = request.body.password;
     var qry =
-      "SELECT id,username,firstname,lastname FROM ADMIN WHERE username =? and password = ?";
+      "SELECT id,username,firstname,lastname FROM admin WHERE username =? and password = ?";
     console.log(username, sha256(password));
     // return return response.redirect('/');
     connection.query(
       qry,
       [username, sha256(password)],
       function (err, result, fields) {
-        // console.log(result);
+        console.log(err);
         if (result.length > 0) {
           return response.json({ success: 1000, result: result[0] });
         } else {
@@ -188,7 +188,7 @@ app.prepare().then(async () => {
       where a.id = ?`;
     // return return response.redirect('/');
     connection.query(qry, [id], function (err, result, fields) {
-      //   console.log(result);
+      console.log(err);
       if (result.length > 0) {
         return response.json({ success: 1000, result: result });
       } else {
@@ -1466,8 +1466,17 @@ where created_at BETWEEN ? AND ? and c.active = true and c.payment = true`;
     });
   });
   server.get("/test", (request, response) => {
-    connection.status();
-    return response.json("ทดสอบ");
+    connection.query("select * from shop", [], function (err, result, fields) {
+      if (!err) {
+        return response.json({
+          success: 1000,
+          result: result,
+        });
+      } else {
+        console.log(err);
+        return response.status(400).send("statement error");
+      }
+    });
   });
   server.all("*", (req, res) => {
     return handle(req, res);
