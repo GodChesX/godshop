@@ -53,6 +53,10 @@ const connection = mysql.createConnection({
   database: "godshop",
 });
 
+connection.connect(function (err) {
+  if (err) throw err;
+  console.log("Connect!!");
+});
 // var qry = "SELECT * FROM ADMIN";
 // console.log(username, password);
 // return return response.redirect('/');
@@ -1461,7 +1465,10 @@ where created_at BETWEEN ? AND ? and c.active = true and c.payment = true`;
       }
     });
   });
-
+  server.get("/test", (request, response) => {
+    connection.status();
+    return response.json("ทดสอบ");
+  });
   server.all("*", (req, res) => {
     return handle(req, res);
   });
