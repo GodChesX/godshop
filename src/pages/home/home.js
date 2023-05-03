@@ -15,9 +15,13 @@ import Grid from "@mui/material/Grid";
 import Paper from "@mui/material/Paper";
 import Chart from "../component/Chart";
 import Deposits from "../component/Deposits";
+import { Button, CardActionArea, CardActions } from "@mui/material";
 import Orders from "../component/Orders";
 import helper from "../../utils/helper";
 import Menu from "../component/Menu";
+import DailyDashnoard from "../component/DailyChart";
+import WeeklyDashboard from "../component/WeeklyCart";
+import MonthlyDashboard from "../component/MonthlyChart";
 const drawerWidth = 240;
 
 const mdTheme = createTheme();
@@ -40,7 +44,7 @@ function DashboardContent() {
     <ThemeProvider theme={mdTheme}>
       <Box sx={{ display: "flex" }}>
         <CssBaseline />
-        <Menu header={"Dashboard"}></Menu>=
+        <Menu header={"Dashboard"}></Menu>
         <Box
           component="main"
           sx={{
@@ -54,42 +58,117 @@ function DashboardContent() {
           }}
         >
           <Toolbar />
-          <Container maxWidth="lg" sx={{ mt: 4, mb: 4 }}>
-            <Grid container spacing={3}>
-              {/* Chart */}
-              <Grid item xs={12} md={8} lg={9}>
-                <Paper
-                  sx={{
-                    p: 2,
-                    display: "flex",
-                    flexDirection: "column",
-                    height: 240,
-                  }}
-                >
-                  <Chart />
-                </Paper>
+          {admin?.permission_name == "admin" ? (
+            <Container maxWidth="lg" sx={{ mt: 4, mb: 4 }}>
+              <Grid container spacing={3}>
+                {/* Chart */}
+                <Grid item xs={12} md={6} lg={6}>
+                  <Paper
+                    sx={{
+                      p: 2,
+                      display: "flex",
+                      flexDirection: "column",
+                      height: 330,
+                    }}
+                  >
+                    <div style={{ display: "flex", flexDirection: "row" }}>
+                      <div style={{ flex: 1 }}>
+                        รายวัน {helper.momentDate(new Date())}{" "}
+                      </div>
+                      <Button
+                        size="small"
+                        color="primary"
+                        onClick={() => {
+                          // console.log("daily");
+                          window.location.href = "/daily-report";
+                        }}
+                      >
+                        รายละเอียด
+                      </Button>
+                    </div>
+
+                    <DailyDashnoard />
+                  </Paper>
+                </Grid>
+                {/* Recent Deposits */}
+                <Grid item xs={12} md={6} lg={6}>
+                  <Paper
+                    sx={{
+                      p: 2,
+                      display: "flex",
+                      flexDirection: "column",
+                      height: 330,
+                    }}
+                  >
+                    <div style={{ display: "flex", flexDirection: "row" }}>
+                      <div style={{ flex: 1 }}>
+                        รายสัปดาห์{" "}
+                        {helper.momentTwoDate(
+                          new Date(
+                            new Date().getFullYear(),
+                            new Date().getMonth(),
+                            new Date().getDate() - 6
+                          ),
+                          new Date()
+                        )}
+                      </div>
+                      <Button
+                        size="small"
+                        color="primary"
+                        onClick={() => {
+                          // console.log("weekly");
+                          window.location.href = "/weekly-report";
+                        }}
+                      >
+                        รายละเอียด
+                      </Button>
+                    </div>
+                    <WeeklyDashboard />
+                  </Paper>
+                </Grid>
+                {/* Recent Orders */}
+                <Grid item xs={12}>
+                  <Paper
+                    sx={{
+                      p: 2,
+                      display: "flex",
+                      flexDirection: "column",
+                      height: 330,
+                    }}
+                  >
+                    <div style={{ display: "flex", flexDirection: "row" }}>
+                      <div style={{ flex: 1 }}>
+                        รายเดือน{" "}
+                        {helper.momentTwoDate(
+                          new Date(
+                            new Date().getFullYear(),
+                            new Date().getMonth(),
+                            1
+                          ),
+                          new Date(
+                            new Date().getFullYear(),
+                            new Date().getMonth() + 1,
+                            0
+                          )
+                        )}
+                      </div>
+                      <Button
+                        size="small"
+                        color="primary"
+                        onClick={() => {
+                          // console.log("monthly");
+                          window.location.href = "/monthly-report";
+                        }}
+                      >
+                        รายละเอียด
+                      </Button>
+                    </div>
+                    <MonthlyDashboard />
+                  </Paper>
+                </Grid>
               </Grid>
-              {/* Recent Deposits */}
-              <Grid item xs={12} md={4} lg={3}>
-                <Paper
-                  sx={{
-                    p: 2,
-                    display: "flex",
-                    flexDirection: "column",
-                    height: 240,
-                  }}
-                >
-                  <Deposits />
-                </Paper>
-              </Grid>
-              {/* Recent Orders */}
-              <Grid item xs={12}>
-                <Paper sx={{ p: 2, display: "flex", flexDirection: "column" }}>
-                  <Orders />
-                </Paper>
-              </Grid>
-            </Grid>
-          </Container>
+            </Container>
+          ) : null}
         </Box>
       </Box>
     </ThemeProvider>

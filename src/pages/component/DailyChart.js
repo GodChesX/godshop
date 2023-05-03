@@ -162,7 +162,7 @@ const default12 = [
   },
 ];
 const DailyDashnoard = (props) => {
-  const { shop_id = null, def = "24", date = new Date() } = props;
+  const { shop_id = null, def = "24", date } = props;
   const [data, setData] = useState(default24);
   // const data = []
   useEffect(() => {
@@ -176,7 +176,9 @@ const DailyDashnoard = (props) => {
   }, [date]);
   const getDaily = () => {
     // let date = new Date();
-    API.dailyReport({ shop_id: shop_id, date: date })
+    let dateToQry = date;
+    if (!dateToQry) dateToQry = new Date();
+    API.dailyReport({ shop_id: shop_id, date: dateToQry })
       .then((response) => {
         console.log(response);
         let tmp = [...data];

@@ -16,24 +16,37 @@ import Grid from "@mui/material/Grid";
 import api from "../../../utils/api";
 import DailyDashboard from "../../component/DailyChart";
 import { Button, CardActionArea, CardActions } from "@mui/material";
-
+import { DesktopDatePicker } from "@mui/x-date-pickers/DesktopDatePicker";
 const mdTheme = createTheme();
+import InputLabel from "@mui/material/InputLabel";
 import Paper from "@mui/material/Paper";
 import Deposits from "../../component/Deposits";
 import Orders from "../../component/Orders";
 import Title from "../../component/Title";
 import WeeklyDashboard from "../../component/WeeklyCart";
 import MonthlyDashboard from "../../component/MonthlyChart";
+// import { MonthCalendar } from "@mui/x-date-pickers/MonthCalendar";
+import FormControl from "@mui/material/FormControl";
+import { LocalizationProvider } from "@mui/x-date-pickers/LocalizationProvider";
+import { AdapterMoment } from "@mui/x-date-pickers/AdapterMoment";
+import Select from "@mui/material/Select";
+import MenuItem from "@mui/material/MenuItem";
+import moment from "moment";
+import CustomizedTables from "../../component/CustomizedTables";
 const API = api.create();
-const Shop = (props) => {
+const MonthlyReport = (props) => {
   console.log(props);
+  let now = new Date();
   const [admin, setAdmin] = React.useState(JSON.parse(helper.getItem("admin")));
+  const [selectValue, setSelectValue] = useState(new Date().getMonth());
+
   const [visible, setVisible] = useState(false);
   const [shop, setShop] = useState(null);
-
+  const [data, setData] = useState(null);
   //   //   let admin = helper.getItem("admin");
   //   console.log(admin);
 
+  //   console.log(testData, stock_price, total);
   React.useEffect(() => {
     if (!admin) {
       window.location.href = "/";
@@ -43,7 +56,7 @@ const Shop = (props) => {
           .then((response) => {
             setShop(response.data.result);
             setVisible(true);
-            console.log(response);
+            // console.log(response);
           })
           .catch((error) => {
             console.log(error);
@@ -63,18 +76,107 @@ const Shop = (props) => {
       //   });
     }
   }, [admin]);
-  // useEffect(() => {
-  //   if (props.router.query.id) {
-  //     console.log(props.router.query.id);
-  //   }
-  // });
+  const handleChange = (newValue) => {
+    console.log("newValue", newValue);
+    setSelectValue(newValue.target.value);
+    // dailyReportDetail(newValue);
+    monthlyReportDetail(newValue.target.value);
+  };
+  useEffect(() => {
+    if (shop) {
+      monthlyReportDetail(selectValue);
+    }
+  }, [shop]);
+  const monthlyReportDetail = (month) => {
+    console;
+    API.monthlyReportDetail({ shop_id: shop.id, month: month })
+      .then((response) => {
+        console.log(response.data.result);
+        let getProductID = [
+          ...new Set(
+            response.data.result.map((ele, index) => {
+              return ele.product_id;
+            })
+          ),
+        ];
+        let stock_price = 0;
+        let count_all = 0;
+        let total = 0;
+
+        let mapdata = getProductID.map((ele) => {
+          let d = response.data.result.filter((e) => e.product_id == ele);
+          let returnValue = {
+            product_name: "",
+            product_image: "",
+            total_price: 0,
+            count: 0,
+            total_stock_price: 0,
+          };
+          d.forEach((e) => {
+            returnValue.product_name = e.product_name;
+            returnValue.product_image = e.product_image;
+            returnValue.count += e.total;
+            returnValue.total_price += e.price * e.total;
+            returnValue.total_stock_price += e.stock_price * e.total;
+            stock_price += e.stock_price * e.total;
+            total += e.price * e.total;
+            count_all += e.total;
+          });
+          return returnValue;
+        });
+        let column = [
+          {
+            name: "ชื่อสินค้า",
+            show: true,
+            field: "product_name",
+            type: "str",
+          },
+          {
+            name: "รูปภาพ",
+            show: true,
+            field: "product_image",
+            type: "image",
+          },
+          {
+            name: "จำนวนสินค้า (ชิ้น)",
+            show: true,
+            field: "count",
+            type: "int",
+          },
+          { name: "ราคา (บาท)", show: true, field: "total_price", type: "int" },
+
+          {
+            name: "ราคาทั้งหมด",
+            show: true,
+            field: "total_stock_price",
+            type: "int",
+          },
+        ];
+        setData({
+          data: { column: column, data: mapdata },
+          total: total,
+          stock_price: stock_price,
+          count_all: count_all,
+        });
+        // console.log(mapdata);
+      })
+      .catch((error) => {
+        console.log(error);
+      });
+  };
   return (
     <ThemeProvider theme={mdTheme}>
       {visible ? (
         <Box sx={{ display: "flex" }}>
           <CssBaseline />
           <MenuShop
-            header={"Dashboard " + shop?.shop_name}
+            header={
+              "รายเดือน " +
+              helper.momentTwoDate(
+                new Date(new Date().getFullYear(), selectValue, 1),
+                new Date(new Date().getFullYear(), selectValue + 1, 0)
+              )
+            }
             shop_id={shop?.id}
           ></MenuShop>
           <Box
@@ -91,110 +193,76 @@ const Shop = (props) => {
           >
             <Toolbar />
             <Container maxWidth="lg" sx={{ mt: 4, mb: 4 }}>
-              <Grid container spacing={3}>
-                {/* Chart */}
-                <Grid item xs={12} md={6} lg={6}>
-                  <Paper
-                    sx={{
-                      p: 2,
-                      display: "flex",
-                      flexDirection: "column",
-                      height: 330,
+              <LocalizationProvider dateAdapter={AdapterMoment}>
+                <div
+                  style={{
+                    display: "flex",
+                    flexDirection: "row",
+                    alignItems: "center",
+                  }}
+                >
+                  <FormControl>
+                    <InputLabel id="demo-simple-select-label">
+                      เลือกเดือน
+                    </InputLabel>
+                    <Select
+                      labelId="demo-simple-select-label"
+                      id="demo-simple-select"
+                      value={selectValue}
+                      label="เลือกเดือน"
+                      onChange={handleChange}
+                    >
+                      <MenuItem value={0}>มกราคม</MenuItem>
+                      <MenuItem value={1}>กุมพาพันธ์</MenuItem>
+                      <MenuItem value={2}>มีนาคม</MenuItem>
+                      <MenuItem value={3}>เมษายน</MenuItem>
+                      <MenuItem value={4}>พฤษภาคม</MenuItem>
+                      <MenuItem value={5}>มิถุนายน</MenuItem>
+                      <MenuItem value={6}>กรกฎาคม</MenuItem>
+                      <MenuItem value={7}>สิงหาคม</MenuItem>
+                      <MenuItem value={8}>กันยายน</MenuItem>
+                      <MenuItem value={9}>ตุลาคม</MenuItem>
+                      <MenuItem value={10}>พฤศจิกายน</MenuItem>
+                      <MenuItem value={11}>ธันวาคม</MenuItem>
+                    </Select>
+                  </FormControl>
+                  <div style={{ padding: 20 }}>
+                    ยอดขายทั้งหมด: {helper.numberWithCommasNoFloat(data?.total)}
+                    {" บาท, "}
+                    ราคา stock:{" "}
+                    {helper.numberWithCommasNoFloat(data?.stock_price)}
+                    {" บาท, "}จำนวนที่ขายได้:{" "}
+                    {helper.numberWithCommasNoFloat(data?.count_all)}
+                    {" ชิ้น"}
+                  </div>
+                </div>
+              </LocalizationProvider>
+              <br />
+              <br />
+              <Paper
+                sx={{
+                  p: 2,
+                  display: "flex",
+                  flexDirection: "column",
+                  height: 330,
+                }}
+              >
+                <MonthlyDashboard shop_id={shop.id} month={selectValue} />
+              </Paper>
+              <br />
+              {data ? (
+                <div style={{ hight: 500 }}>
+                  <CustomizedTables
+                    data={data?.data}
+                    onClick={(id) => {
+                      // getOrderDetail(id);
+                      // handleOpen();
+                      // // console.log("id", id);
                     }}
-                  >
-                    <div style={{ display: "flex", flexDirection: "row" }}>
-                      <div style={{ flex: 1 }}>
-                        รายวัน {helper.momentDate(new Date())}{" "}
-                      </div>
-                      <Button
-                        size="small"
-                        color="primary"
-                        onClick={() => {
-                          console.log("daily");
-                        }}
-                      >
-                        รายละเอียด
-                      </Button>
-                    </div>
-
-                    <DailyDashboard shop_id={shop.id} />
-                  </Paper>
-                </Grid>
-                {/* Recent Deposits */}
-                <Grid item xs={12} md={6} lg={6}>
-                  <Paper
-                    sx={{
-                      p: 2,
-                      display: "flex",
-                      flexDirection: "column",
-                      height: 330,
-                    }}
-                  >
-                    <div style={{ display: "flex", flexDirection: "row" }}>
-                      <div style={{ flex: 1 }}>
-                        รายสัปดาห์{" "}
-                        {helper.momentTwoDate(
-                          new Date(
-                            new Date().getFullYear(),
-                            new Date().getMonth(),
-                            new Date().getDate() - 6
-                          ),
-                          new Date()
-                        )}
-                      </div>
-                      <Button
-                        size="small"
-                        color="primary"
-                        onClick={() => {
-                          console.log("weekly");
-                        }}
-                      >
-                        รายละเอียด
-                      </Button>
-                    </div>
-                    <WeeklyDashboard shop_id={shop.id} />
-                  </Paper>
-                </Grid>
-                {/* Recent Orders */}
-                <Grid item xs={12}>
-                  <Paper
-                    sx={{
-                      p: 2,
-                      display: "flex",
-                      flexDirection: "column",
-                      height: 330,
-                    }}
-                  >
-                    <div style={{ display: "flex", flexDirection: "row" }}>
-                      <div style={{ flex: 1 }}>
-                        รายเดือน{" "}
-                        {helper.momentTwoDate(
-                          new Date(
-                            new Date().getFullYear(),
-                            new Date().getMonth(),
-                            1
-                          ),
-                          new Date(
-                            new Date().getFullYear(),
-                            new Date().getMonth() + 1,
-                            0
-                          )
-                        )}
-                      </div>
-                      <Button
-                        size="small"
-                        color="primary"
-                        onClick={() => {
-                          console.log("monthly");
-                        }}
-                      >
-                        รายละเอียด
-                      </Button>
-                    </div>
-                    <MonthlyDashboard shop_id={shop.id} />
-                  </Paper>
-                </Grid>
-              </Grid>
+                    showDelete={false}
+                  ></CustomizedTables>
+                </div>
+              ) : null}
             </Container>
           </Box>
         </Box>
@@ -206,4 +274,4 @@ const Shop = (props) => {
 };
 // export default Shop;
 
-export default connect((state) => state)(withRouter(Shop));
+export default connect((state) => state)(withRouter(MonthlyReport));

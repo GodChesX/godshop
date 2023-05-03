@@ -148,7 +148,9 @@ const Shop = (props) => {
                         size="small"
                         color="primary"
                         onClick={() => {
-                          console.log("weekly");
+                          // console.log("weekly");
+                          window.location.href =
+                            "/shop/" + shop?.id + "/weekly-report";
                         }}
                       >
                         รายละเอียด
@@ -187,7 +189,9 @@ const Shop = (props) => {
                         size="small"
                         color="primary"
                         onClick={() => {
-                          console.log("monthly");
+                          // console.log("monthly");
+                          window.location.href =
+                            "/shop/" + shop?.id + "/monthly-report";
                         }}
                       >
                         รายละเอียด

@@ -10,7 +10,7 @@ import { connect } from "react-redux";
 import { withTranslation } from "../../../../i18n";
 import helper from "../../../utils/helper";
 import { withRouter } from "next/router";
-import MenuShop from "../../component/MenuShop";
+import Menu from "../../component/Menu";
 import Container from "@mui/material/Container";
 import Grid from "@mui/material/Grid";
 import api from "../../../utils/api";
@@ -49,20 +49,9 @@ const WeeklyReport = (props) => {
     if (!admin) {
       window.location.href = "/";
     } else {
-      if (props.router.query.id) {
-        API.getPermission(admin.id, props.router.query.id)
-          .then((response) => {
-            setShop(response.data.result);
-            setVisible(true);
-            // console.log(response);
-          })
-          .catch((error) => {
-            console.log(error);
-            window.location.href = "/";
-          });
-        // console.log(props.router.query.id);
-      } else {
-        window.location.href = "/";
+      if (admin.permission_name == "admin") {
+        setVisible(true);
+        weeklyReportDetail(selectDate, selectDateEnd);
       }
       // API.getPermission(admin.id)
       //   .then((response) => {
@@ -85,14 +74,10 @@ const WeeklyReport = (props) => {
     setSelectDateEnd(newValue);
     weeklyReportDetail(selectDate, newValue);
   };
-  useEffect(() => {
-    if (shop) {
-      weeklyReportDetail(selectDate, selectDateEnd);
-    }
-  }, [shop]);
+
   const weeklyReportDetail = (from, to) => {
     console;
-    API.weeklyReportDetail({ shop_id: shop.id, dateFrom: from, dateTo: to })
+    API.weeklyReportDetail({ dateFrom: from, dateTo: to })
       .then((response) => {
         console.log(response.data.result);
         let getProductID = [
@@ -172,10 +157,10 @@ const WeeklyReport = (props) => {
       {visible ? (
         <Box sx={{ display: "flex" }}>
           <CssBaseline />
-          <MenuShop
+          <Menu
             header={"รายงาน " + helper.momentTwoDate(selectDate, selectDateEnd)}
-            shop_id={shop?.id}
-          ></MenuShop>
+            // shop_id={shop?.id}
+          ></Menu>
           <Box
             component="main"
             sx={{
@@ -236,7 +221,7 @@ const WeeklyReport = (props) => {
                 }}
               >
                 <WeeklyDashboard
-                  shop_id={shop.id}
+                  // shop_id={shop.id}
                   dateStart={selectDate}
                   dateEnd={selectDateEnd}
                 />

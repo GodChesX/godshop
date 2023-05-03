@@ -10,7 +10,7 @@ import { connect } from "react-redux";
 import { withTranslation } from "../../../../i18n";
 import helper from "../../../utils/helper";
 import { withRouter } from "next/router";
-import MenuShop from "../../component/MenuShop";
+import Menu from "../../component/Menu";
 import Container from "@mui/material/Container";
 import Grid from "@mui/material/Grid";
 import api from "../../../utils/api";
@@ -18,25 +18,27 @@ import DailyDashboard from "../../component/DailyChart";
 import { Button, CardActionArea, CardActions } from "@mui/material";
 import { DesktopDatePicker } from "@mui/x-date-pickers/DesktopDatePicker";
 const mdTheme = createTheme();
+import InputLabel from "@mui/material/InputLabel";
 import Paper from "@mui/material/Paper";
 import Deposits from "../../component/Deposits";
 import Orders from "../../component/Orders";
 import Title from "../../component/Title";
 import WeeklyDashboard from "../../component/WeeklyCart";
 import MonthlyDashboard from "../../component/MonthlyChart";
+// import { MonthCalendar } from "@mui/x-date-pickers/MonthCalendar";
+import FormControl from "@mui/material/FormControl";
 import { LocalizationProvider } from "@mui/x-date-pickers/LocalizationProvider";
 import { AdapterMoment } from "@mui/x-date-pickers/AdapterMoment";
+import Select from "@mui/material/Select";
+import MenuItem from "@mui/material/MenuItem";
 import moment from "moment";
 import CustomizedTables from "../../component/CustomizedTables";
 const API = api.create();
-const WeeklyReport = (props) => {
+const MonthlyReport = (props) => {
   console.log(props);
   let now = new Date();
   const [admin, setAdmin] = React.useState(JSON.parse(helper.getItem("admin")));
-  const [selectDate, setSelectDate] = useState(
-    moment(new Date(now.getFullYear(), now.getMonth(), now.getDate() - 6))
-  );
-  const [selectDateEnd, setSelectDateEnd] = useState(moment(now));
+  const [selectValue, setSelectValue] = useState(new Date().getMonth());
 
   const [visible, setVisible] = useState(false);
   const [shop, setShop] = useState(null);
@@ -49,20 +51,9 @@ const WeeklyReport = (props) => {
     if (!admin) {
       window.location.href = "/";
     } else {
-      if (props.router.query.id) {
-        API.getPermission(admin.id, props.router.query.id)
-          .then((response) => {
-            setShop(response.data.result);
-            setVisible(true);
-            // console.log(response);
-          })
-          .catch((error) => {
-            console.log(error);
-            window.location.href = "/";
-          });
-        // console.log(props.router.query.id);
-      } else {
-        window.location.href = "/";
+      if (admin.permission_name == "admin") {
+        setVisible(true);
+        monthlyReportDetail(selectValue);
       }
       // API.getPermission(admin.id)
       //   .then((response) => {
@@ -76,23 +67,13 @@ const WeeklyReport = (props) => {
   }, [admin]);
   const handleChange = (newValue) => {
     console.log("newValue", newValue);
-    setSelectDate(newValue);
+    setSelectValue(newValue.target.value);
     // dailyReportDetail(newValue);
-    weeklyReportDetail(newValue, selectDateEnd);
+    monthlyReportDetail(newValue.target.value);
   };
-  const handleChangeEnd = (newValue) => {
-    console.log("newValue", newValue);
-    setSelectDateEnd(newValue);
-    weeklyReportDetail(selectDate, newValue);
-  };
-  useEffect(() => {
-    if (shop) {
-      weeklyReportDetail(selectDate, selectDateEnd);
-    }
-  }, [shop]);
-  const weeklyReportDetail = (from, to) => {
+  const monthlyReportDetail = (month) => {
     console;
-    API.weeklyReportDetail({ shop_id: shop.id, dateFrom: from, dateTo: to })
+    API.monthlyReportDetail({ month: month })
       .then((response) => {
         console.log(response.data.result);
         let getProductID = [
@@ -172,10 +153,16 @@ const WeeklyReport = (props) => {
       {visible ? (
         <Box sx={{ display: "flex" }}>
           <CssBaseline />
-          <MenuShop
-            header={"รายงาน " + helper.momentTwoDate(selectDate, selectDateEnd)}
-            shop_id={shop?.id}
-          ></MenuShop>
+          <Menu
+            header={
+              "รายเดือน " +
+              helper.momentTwoDate(
+                new Date(new Date().getFullYear(), selectValue, 1),
+                new Date(new Date().getFullYear(), selectValue + 1, 0)
+              )
+            }
+            // shop_id={shop?.id}
+          ></Menu>
           <Box
             component="main"
             sx={{
@@ -198,22 +185,31 @@ const WeeklyReport = (props) => {
                     alignItems: "center",
                   }}
                 >
-                  <DesktopDatePicker
-                    label="เลือกวันที่เริ่มต้น"
-                    inputFormat="MM/DD/YYYY"
-                    value={selectDate}
-                    maxDate={selectDateEnd}
-                    onChange={handleChange}
-                    renderInput={(params) => <TextField {...params} />}
-                  />
-                  <DesktopDatePicker
-                    label="เลือกวันที่สิ้นสุด"
-                    inputFormat="MM/DD/YYYY"
-                    value={selectDateEnd}
-                    minDate={selectDate}
-                    onChange={handleChangeEnd}
-                    renderInput={(params) => <TextField {...params} />}
-                  />
+                  <FormControl>
+                    <InputLabel id="demo-simple-select-label">
+                      เลือกเดือน
+                    </InputLabel>
+                    <Select
+                      labelId="demo-simple-select-label"
+                      id="demo-simple-select"
+                      value={selectValue}
+                      label="เลือกเดือน"
+                      onChange={handleChange}
+                    >
+                      <MenuItem value={0}>มกราคม</MenuItem>
+                      <MenuItem value={1}>กุมพาพันธ์</MenuItem>
+                      <MenuItem value={2}>มีนาคม</MenuItem>
+                      <MenuItem value={3}>เมษายน</MenuItem>
+                      <MenuItem value={4}>พฤษภาคม</MenuItem>
+                      <MenuItem value={5}>มิถุนายน</MenuItem>
+                      <MenuItem value={6}>กรกฎาคม</MenuItem>
+                      <MenuItem value={7}>สิงหาคม</MenuItem>
+                      <MenuItem value={8}>กันยายน</MenuItem>
+                      <MenuItem value={9}>ตุลาคม</MenuItem>
+                      <MenuItem value={10}>พฤศจิกายน</MenuItem>
+                      <MenuItem value={11}>ธันวาคม</MenuItem>
+                    </Select>
+                  </FormControl>
                   <div style={{ padding: 20 }}>
                     ยอดขายทั้งหมด: {helper.numberWithCommasNoFloat(data?.total)}
                     {" บาท, "}
@@ -235,11 +231,7 @@ const WeeklyReport = (props) => {
                   height: 330,
                 }}
               >
-                <WeeklyDashboard
-                  shop_id={shop.id}
-                  dateStart={selectDate}
-                  dateEnd={selectDateEnd}
-                />
+                <MonthlyDashboard month={selectValue} />
               </Paper>
               <br />
               {data ? (
@@ -266,4 +258,4 @@ const WeeklyReport = (props) => {
 };
 // export default Shop;
 
-export default connect((state) => state)(withRouter(WeeklyReport));
+export default connect((state) => state)(withRouter(MonthlyReport));

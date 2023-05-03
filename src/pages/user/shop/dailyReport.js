@@ -29,14 +29,14 @@ import { AdapterMoment } from "@mui/x-date-pickers/AdapterMoment";
 import moment from "moment";
 import CustomizedTables from "../../component/CustomizedTables";
 const API = api.create();
-const Shop = (props) => {
+const DailyReport = (props) => {
   console.log(props);
   const [admin, setAdmin] = React.useState(JSON.parse(helper.getItem("admin")));
   const [selectDate, setSelectDate] = useState(moment(new Date()));
 
   const [visible, setVisible] = useState(false);
   const [shop, setShop] = useState(null);
-  const [data, setDate] = useState(null);
+  const [data, setData] = useState(null);
   //   //   let admin = helper.getItem("admin");
   //   console.log(admin);
 
@@ -71,7 +71,7 @@ const Shop = (props) => {
     }
   }, [admin]);
   const handleChange = (newValue) => {
-    // console.log(newValue);
+    console.log("newValue", newValue);
     setSelectDate(newValue);
     dailyReportDetail(newValue);
   };
@@ -144,7 +144,7 @@ const Shop = (props) => {
             type: "int",
           },
         ];
-        setDate({
+        setData({
           data: { column: column, data: mapdata },
           total: total,
           stock_price: stock_price,
@@ -242,4 +242,4 @@ const Shop = (props) => {
 };
 // export default Shop;
 
-export default connect((state) => state)(withRouter(Shop));
+export default connect((state) => state)(withRouter(DailyReport));

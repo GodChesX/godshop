@@ -41,16 +41,16 @@ const upload2 = multer({ storage: storage2 }); //add new
 // apply them
 
 const connection = mysql.createConnection({
-  // host: "localhost",
-  // port: 3306,
-  // user: "root",
-  // password: "Ches@ter0",
-  // database: "hawai",
-  host: "node45888-godchesxtech.th1.proen.cloud",
+  host: "localhost",
   port: 3306,
   user: "root",
-  password: "GHOavq32961",
-  database: "godshop",
+  password: "Ches@ter0",
+  database: "hawai",
+  // host: "node45888-godchesxtech.th1.proen.cloud",
+  // port: 3306,
+  // user: "root",
+  // password: "GHOavq32961",
+  // database: "godshop",
 });
 
 connection.connect(function (err) {
@@ -155,6 +155,25 @@ app.prepare().then(async () => {
     });
   });
 
+  server.get("/daily-report", (req, res) => {
+    return app.render(req, res, "/home/report/dailyReport", {
+      id: req.params.id,
+      // order_id: req.params.order_id,
+    });
+  });
+  server.get("/weekly-report", (req, res) => {
+    return app.render(req, res, "/home/report/weeklyReport", {
+      id: req.params.id,
+      // order_id: req.params.order_id,
+    });
+  });
+  server.get("/monthly-report", (req, res) => {
+    return app.render(req, res, "/home/report/monthlyReport", {
+      id: req.params.id,
+      // order_id: req.params.order_id,
+    });
+  });
+
   //POST
   server.post("/login", (request, response) => {
     console.log("rere");
@@ -163,7 +182,7 @@ app.prepare().then(async () => {
     var username = request.body.username;
     var password = request.body.password;
     var qry =
-      "SELECT id,username,firstname,lastname FROM admin WHERE username =? and password = ?";
+      "SELECT a.id,a.username,a.firstname,a.lastname,p.permission_name FROM admin as a join permission as p on p.id = a.permission_id  WHERE username =  ? and password = ?";
     console.log(username, sha256(password));
     // return return response.redirect('/');
     connection.query(
@@ -1273,6 +1292,9 @@ where created_at BETWEEN ? AND ? and c.active = true and c.payment = true`;
       qry += " and c.shop_id = ?";
       param.push(shop_id);
     }
+    console.log("param", param);
+    console.log("qry", qry);
+
     connection.query(qry, param, function (err, result, fields) {
       if (!err) {
         console.log(result);
@@ -1288,7 +1310,7 @@ where created_at BETWEEN ? AND ? and c.active = true and c.payment = true`;
   });
   server.post("/weeklyReport", (request, response) => {
     let shop_id = request.body.shop_id;
-    // console.log(request.body);
+    console.log(request.body);
     let rawDateFrom = new Date(request.body.dateFrom);
     let rawDateTo = new Date(request.body.dateTo);
 
@@ -1311,7 +1333,9 @@ where created_at BETWEEN ? AND ? and c.active = true and c.payment = true`;
       rawDateTo.getDate() +
       " 23:59:59";
 
-    console.log(dateForm, dateTo);
+    console.log("dateForm", dateForm);
+    console.log("dateTo", dateTo);
+
     let qry = `select distinct DATE(c.created_at) as order_date, (select SUM(cd.price * cd.total) from checkout_detail as cd where date(cd.created_at) = DATE(order_date) and cd.active = true group by date(cd.created_at)) as price from checkout as c
     where created_at BETWEEN ? AND ? and c.active = true and c.payment = true`;
     let param = [dateForm, dateTo];
@@ -1465,6 +1489,108 @@ where created_at BETWEEN ? AND ? and c.active = true and c.payment = true`;
       }
     });
   });
+
+  server.post("/weeklyReportDetail", (request, response) => {
+    let shop_id = request.body.shop_id;
+    console.log(request.body);
+    let rawDateFrom = new Date(request.body.dateFrom);
+    let rawDateTo = new Date(request.body.dateTo);
+
+    let dateForm =
+      rawDateFrom.getFullYear() +
+      "-" +
+      (rawDateFrom.getMonth() + 1 >= 10
+        ? rawDateFrom.getMonth() + 1
+        : "0" + (rawDateFrom.getMonth() + 1)) +
+      "-" +
+      rawDateFrom.getDate() +
+      " 00:00:00";
+    let dateTo =
+      rawDateTo.getFullYear() +
+      "-" +
+      (rawDateTo.getMonth() + 1 >= 10
+        ? rawDateTo.getMonth() + 1
+        : "0" + (rawDateTo.getMonth() + 1)) +
+      "-" +
+      rawDateTo.getDate() +
+      " 23:59:59";
+
+    console.log(dateForm, dateTo);
+    let qry = `select c.id,cd.*,ps.stock_price as stock_price, ps.product_id,p.product_image, p.product_name from checkout as c join checkout_detail as cd on cd.checkout_id = c.id
+    join product_stock as ps on ps.id = cd.stock_id
+    join product as p on p.id = ps.product_id
+         where c.created_at BETWEEN ? AND ? and c.active = true and c.payment = true`;
+    let param = [dateForm, dateTo];
+    if (shop_id) {
+      qry += " and c.shop_id = ?";
+      param.push(shop_id);
+    }
+    connection.query(qry, param, function (err, result, fields) {
+      if (!err) {
+        console.log(result);
+        return response.json({
+          success: 1000,
+          result: result,
+        });
+      } else {
+        console.log(err);
+        return response.status(400).send("statement error");
+      }
+    });
+  });
+
+  server.post("/monthlyReportDetail", (request, response) => {
+    let shop_id = request.body.shop_id;
+    // console.log(request.body);
+    let month = request.body.month;
+    let year = request.body.year ?? new Date().getFullYear();
+
+    let rawDateFrom = new Date(year, month, 1);
+    let rawDateTo = new Date(year, month + 1, 0);
+
+    let dateForm =
+      rawDateFrom.getFullYear() +
+      "-" +
+      (rawDateFrom.getMonth() + 1 >= 10
+        ? rawDateFrom.getMonth() + 1
+        : "0" + (rawDateFrom.getMonth() + 1)) +
+      "-" +
+      rawDateFrom.getDate() +
+      " 00:00:00";
+    let dateTo =
+      rawDateTo.getFullYear() +
+      "-" +
+      (rawDateTo.getMonth() + 1 >= 10
+        ? rawDateTo.getMonth() + 1
+        : "0" + (rawDateTo.getMonth() + 1)) +
+      "-" +
+      rawDateTo.getDate() +
+      " 23:59:59";
+
+    console.log(dateForm, dateTo);
+    let qry = `select c.id,cd.*,ps.stock_price as stock_price, ps.product_id,p.product_image, p.product_name from checkout as c join checkout_detail as cd on cd.checkout_id = c.id
+    join product_stock as ps on ps.id = cd.stock_id
+    join product as p on p.id = ps.product_id
+         where c.created_at BETWEEN ? AND ? and c.active = true and c.payment = true`;
+    let param = [dateForm, dateTo];
+    if (shop_id) {
+      qry += " and c.shop_id = ?";
+      param.push(shop_id);
+    }
+    connection.query(qry, param, function (err, result, fields) {
+      if (!err) {
+        console.log(result);
+        return response.json({
+          success: 1000,
+          result: result,
+        });
+      } else {
+        console.log(err);
+        return response.status(400).send("statement error");
+      }
+    });
+  });
+
   server.get("/test", (request, response) => {
     connection.query("select * from shop", [], function (err, result, fields) {
       if (!err) {

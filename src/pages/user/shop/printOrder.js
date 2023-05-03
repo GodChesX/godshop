@@ -106,7 +106,7 @@ const PrintOrder = (props) => {
                 src={
                   shop?.logo
                     ? process.env.NEXT_PUBLIC_APP_ENPOINT +
-                      "/image/product/" +
+                      "/image/shop/logo/" +
                       shop?.logo
                     : require("../../../../public/image/logo.png")
                 }
@@ -239,10 +239,10 @@ const PrintOrder = (props) => {
             >
               <img
                 src={
-                  shop?.logo
+                  shop?.qrcode
                     ? process.env.NEXT_PUBLIC_APP_ENPOINT +
-                      "/image/product/" +
-                      shop?.logo
+                      "/image/shop/qrcode/" +
+                      shop?.qrcode
                     : require("../../../../public/image/defaultQRcode.png")
                 }
                 style={{ width: "50%" }}

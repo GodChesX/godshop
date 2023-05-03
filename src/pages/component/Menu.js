@@ -109,7 +109,11 @@ function DashboardContent(header) {
     } else {
       API.getShop(admin.id)
         .then((response) => {
-          //   console.log(response);
+          console.log(response);
+          if (response.data.result.length == 1) {
+            // console.log(response.data.result[0].id);
+            window.location.href = "/shop/" + response.data.result[0].id;
+          }
           setShop(response.data.result);
         })
         .catch((error) => {

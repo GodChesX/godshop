@@ -15,34 +15,100 @@ import helper from "../../utils/helper";
 import Title from "./Title";
 const API = api.create();
 const WeeklyDashboard = (props) => {
-  const { shop_id = null, def = "24" } = props;
-  let date = new Date();
-  let defaultWeek = [6, 5, 4, 3, 2, 1, 0].map((ele, index) => {
-    let name = helper.momentDate(
-      new Date(
-        date.getFullYear(),
-        date.getMonth() >= 10 ? date.getMonth() : "0" + date.getMonth(),
-        date.getDate() - ele
-      ),
-      "short",
-      false
-    );
-    return { name: name, total: 0, key: date.getDate() - ele };
-  });
-  const [data, setData] = useState(defaultWeek);
+  const { shop_id = null, def = "24", dateStart, dateEnd } = props;
+
+  const [data, setData] = useState();
   // const data = []
+  let date = new Date();
+
   // console.log(data);
-  useEffect(() => {
-    // setData();
-    setData(defaultWeek);
-    getWeekly();
-  }, []);
   // useEffect(() => {
-  //   if (data) {
-  //     getWeekly();
-  //   }
+  //   // setData();
+  //   // getWeekly();
   // }, [data]);
-  const getWeekly = () => {
+  useEffect(() => {
+    // console.log("dateStart", dateStart);
+    if (dateStart && dateEnd) {
+      // console.log(dateEnd - dateStart);
+      let start = new Date(dateStart);
+      let end = new Date(dateEnd);
+      let loop;
+      if (start.getMonth() != end.getMonth()) {
+        loop = end.getDate();
+        // if(start.getDate() > end.getDate()){
+        // loop = end.getDate();
+        let now = new Date(dateStart);
+        now.setMonth(now.getMonth() + 1);
+        now.setDate(0);
+        loop += now.getDate() - start.getDate();
+        // console.log(
+        //   "now.getDate() - start.getDate()",
+        //   now.getDate() - start.getDate()
+        // );
+        // }
+
+        // console.log(loop);
+      } else {
+        loop = end.getDate() - startend.getDate();
+      }
+      console.log("loop", loop);
+      let defaultWeek = [];
+
+      for (let i = loop; i >= 0; i--) {
+        // console.log(i);
+        let name = helper.momentDate(
+          new Date(
+            end.getFullYear(),
+            end.getMonth() >= 10 ? date.getMonth() : "0" + date.getMonth(),
+            end.getDate() - i
+          ),
+          "short",
+          false
+        );
+        let key = end.getDate() - i;
+        if (key <= 0) {
+          let now = new Date(dateStart);
+          now.setMonth(now.getMonth() + 1);
+          now.setDate(0);
+          key = now.getDate() - (i - end.getDate());
+        }
+        defaultWeek.push({ name: name, total: 0, key: key });
+      }
+      // [6, 5, 4, 3, 2, 1, 0].map((ele, index) => {});
+      // console.log(defaultWeek);
+      // setData(defaultWeek);
+      getWeekly(defaultWeek);
+    } else {
+      console.log("here ??");
+      let i = 0;
+      let defaultWeek = [6, 5, 4, 3, 2, 1, 0].map((ele, index) => {
+        let name = helper.momentDate(
+          new Date(
+            date.getFullYear(),
+            date.getMonth() >= 10 ? date.getMonth() : "0" + date.getMonth(),
+            date.getDate() - ele
+          ),
+          "short",
+          false
+        );
+        let key = date.getDate() - ele;
+        if (key <= 0) {
+          let now = new Date();
+          now.setMonth(now.getMonth());
+          now.setDate(0);
+          console.log("now", now.getDate());
+          key = now.getDate() - (ele - date.getDate());
+        } else {
+          i += 1;
+        }
+        return { name: name, total: 0, key: key };
+      });
+      getWeekly(defaultWeek);
+
+      // setData(defaultWeek);
+    }
+  }, [dateStart, dateEnd]);
+  const getWeekly = (defaultWeek) => {
     let dateTo = new Date();
     let dateFrom = new Date(
       dateTo.getFullYear(),
@@ -50,10 +116,15 @@ const WeeklyDashboard = (props) => {
       dateTo.getDate() - 7
     );
 
-    API.weeklyReport({ shop_id: shop_id, dateFrom: dateFrom, dateTo: dateTo })
+    API.weeklyReport({
+      shop_id: shop_id,
+      dateFrom: dateStart ? dateStart : dateFrom,
+      dateTo: dateEnd ? dateEnd : dateTo,
+    })
       .then((response) => {
         console.log(response);
-        let tmp = [...data];
+        let tmp = [...defaultWeek];
+        // console.log(tmp);
         response.data.result.forEach((ele, index) => {
           // let key = 0;
           // let date = new Date(ele.order_date);
@@ -66,6 +137,7 @@ const WeeklyDashboard = (props) => {
             }
           });
         });
+        // console.log(tmp);
         setData(tmp);
       })
       .catch((error) => {

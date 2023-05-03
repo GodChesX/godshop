@@ -22,10 +22,10 @@ export default function Login() {
   const handleSubmit = (event) => {
     event.preventDefault();
     const data = new FormData(event.currentTarget);
-    console.log({
-      username: data.get("username"),
-      password: data.get("password"),
-    });
+    // console.log({
+    //   username: data.get("username"),
+    //   password: data.get("password"),
+    // });
     API.signIn({
       username: data.get("username"),
       password: data.get("password"),

@@ -14,6 +14,8 @@ import MenuShop from "../../component/MenuShop";
 import Container from "@mui/material/Container";
 import Grid from "@mui/material/Grid";
 import api from "../../../utils/api";
+import Menu from "../../component/Menu";
+
 import DailyDashboard from "../../component/DailyChart";
 import { Button, CardActionArea, CardActions } from "@mui/material";
 import { DesktopDatePicker } from "@mui/x-date-pickers/DesktopDatePicker";
@@ -29,14 +31,10 @@ import { AdapterMoment } from "@mui/x-date-pickers/AdapterMoment";
 import moment from "moment";
 import CustomizedTables from "../../component/CustomizedTables";
 const API = api.create();
-const WeeklyReport = (props) => {
+const DailyReport = (props) => {
   console.log(props);
-  let now = new Date();
   const [admin, setAdmin] = React.useState(JSON.parse(helper.getItem("admin")));
-  const [selectDate, setSelectDate] = useState(
-    moment(new Date(now.getFullYear(), now.getMonth(), now.getDate() - 6))
-  );
-  const [selectDateEnd, setSelectDateEnd] = useState(moment(now));
+  const [selectDate, setSelectDate] = useState(moment(new Date()));
 
   const [visible, setVisible] = useState(false);
   const [shop, setShop] = useState(null);
@@ -49,50 +47,23 @@ const WeeklyReport = (props) => {
     if (!admin) {
       window.location.href = "/";
     } else {
-      if (props.router.query.id) {
-        API.getPermission(admin.id, props.router.query.id)
-          .then((response) => {
-            setShop(response.data.result);
-            setVisible(true);
-            // console.log(response);
-          })
-          .catch((error) => {
-            console.log(error);
-            window.location.href = "/";
-          });
-        // console.log(props.router.query.id);
-      } else {
-        window.location.href = "/";
+      if (admin.permission_name == "admin") {
+        setVisible(true);
+        dailyReportDetail(selectDate);
       }
-      // API.getPermission(admin.id)
-      //   .then((response) => {
-      //     //   console.log(response);
-      //     setShop(response.data.result);
-      //   })
-      //   .catch((error) => {
-      //     console.log(error);
-      //   });
     }
   }, [admin]);
   const handleChange = (newValue) => {
     console.log("newValue", newValue);
     setSelectDate(newValue);
-    // dailyReportDetail(newValue);
-    weeklyReportDetail(newValue, selectDateEnd);
-  };
-  const handleChangeEnd = (newValue) => {
-    console.log("newValue", newValue);
-    setSelectDateEnd(newValue);
-    weeklyReportDetail(selectDate, newValue);
+    dailyReportDetail(newValue);
   };
   useEffect(() => {
-    if (shop) {
-      weeklyReportDetail(selectDate, selectDateEnd);
-    }
-  }, [shop]);
-  const weeklyReportDetail = (from, to) => {
-    console;
-    API.weeklyReportDetail({ shop_id: shop.id, dateFrom: from, dateTo: to })
+    // if (shop) {
+    // }
+  }, []);
+  const dailyReportDetail = (date) => {
+    API.dailyReportDetail({ date: date })
       .then((response) => {
         console.log(response.data.result);
         let getProductID = [
@@ -172,10 +143,9 @@ const WeeklyReport = (props) => {
       {visible ? (
         <Box sx={{ display: "flex" }}>
           <CssBaseline />
-          <MenuShop
-            header={"รายงาน " + helper.momentTwoDate(selectDate, selectDateEnd)}
-            shop_id={shop?.id}
-          ></MenuShop>
+          <Menu
+            header={"รายวัน " + helper.momentDate(selectDate, "short")}
+          ></Menu>
           <Box
             component="main"
             sx={{
@@ -199,19 +169,10 @@ const WeeklyReport = (props) => {
                   }}
                 >
                   <DesktopDatePicker
-                    label="เลือกวันที่เริ่มต้น"
+                    label="เลือกวันที่"
                     inputFormat="MM/DD/YYYY"
                     value={selectDate}
-                    maxDate={selectDateEnd}
                     onChange={handleChange}
-                    renderInput={(params) => <TextField {...params} />}
-                  />
-                  <DesktopDatePicker
-                    label="เลือกวันที่สิ้นสุด"
-                    inputFormat="MM/DD/YYYY"
-                    value={selectDateEnd}
-                    minDate={selectDate}
-                    onChange={handleChangeEnd}
                     renderInput={(params) => <TextField {...params} />}
                   />
                   <div style={{ padding: 20 }}>
@@ -235,11 +196,7 @@ const WeeklyReport = (props) => {
                   height: 330,
                 }}
               >
-                <WeeklyDashboard
-                  shop_id={shop.id}
-                  dateStart={selectDate}
-                  dateEnd={selectDateEnd}
-                />
+                <DailyDashboard date={selectDate} />
               </Paper>
               <br />
               {data ? (
@@ -266,4 +223,4 @@ const WeeklyReport = (props) => {
 };
 // export default Shop;
 
-export default connect((state) => state)(withRouter(WeeklyReport));
+export default connect((state) => state)(withRouter(DailyReport));

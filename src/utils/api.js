@@ -10,7 +10,7 @@ const create = () => {
       username: data.username,
       password: md5(data.password),
     };
-    console.log(user);
+    // console.log(user);
     return api.post("login", user, {
       headers: {
         Accept: "application/json",
@@ -196,6 +196,23 @@ const create = () => {
     });
   };
 
+  const weeklyReportDetail = (data) => {
+    return api.post("weeklyReportDetail", data, {
+      headers: {
+        Accept: "application/json",
+        "Content-Type": "application/json",
+      },
+    });
+  };
+
+  const monthlyReportDetail = (data) => {
+    return api.post("monthlyReportDetail", data, {
+      headers: {
+        Accept: "application/json",
+        "Content-Type": "application/json",
+      },
+    });
+  };
   //   deleteProduct;
   return {
     signIn,
@@ -219,6 +236,8 @@ const create = () => {
     weeklyReport,
     monthlyReport,
     dailyReportDetail,
+    weeklyReportDetail,
+    monthlyReportDetail,
   };
 };
 export default {

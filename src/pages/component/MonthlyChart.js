@@ -15,21 +15,8 @@ import helper from "../../utils/helper";
 import Title from "./Title";
 const API = api.create();
 const MonthlyDashboard = (props) => {
-  const { shop_id = null, def = "24" } = props;
-  let date = new Date(new Date().getFullYear(), new Date().getMonth() + 1, 0);
-  let defaultMonth = [];
-  for (let i = 1; i <= date.getDate(); i++) {
-    let name = helper.momentDate(
-      new Date(
-        date.getFullYear(),
-        date.getMonth() >= 10 ? date.getMonth() : "0" + date.getMonth(),
-        i
-      ),
-      "short",
-      false
-    );
-    defaultMonth.push({ name: name, total: 0, key: i });
-  }
+  const { shop_id = null, def = "24", month, year } = props;
+
   // let defaultMonth = new Array(date.getDate()).forEach((ele, index) => {
   //   console.log("defaultMonth", ele);
   //   let name = helper.momentDate(
@@ -44,25 +31,68 @@ const MonthlyDashboard = (props) => {
   //   return { name: name, total: 0, key: date.getDate() - ele };
   // });
   // console.log(defaultMonth);
-  const [data, setData] = useState(defaultMonth);
+  const [data, setData] = useState();
   // const data = []
   useEffect(() => {
     // setData();
-    setData(defaultMonth);
-    getMonthly();
+    // setData(defaultMonth);
   }, []);
-  // useEffect(() => {
-  //   if (data) {
-  //     getWeekly();
-  //   }
-  // }, [data]);
-  const getMonthly = () => {
+  useEffect(() => {
+    if (month || year) {
+      let date = new Date(
+        year ? year : new Date().getFullYear(),
+        month ? month + 1 : new Date().getMonth() + 1,
+        0
+      );
+      let defaultMonth = [];
+      for (let i = 1; i <= date.getDate(); i++) {
+        let name = helper.momentDate(
+          new Date(
+            date.getFullYear(),
+            date.getMonth() >= 10 ? date.getMonth() : "0" + date.getMonth(),
+            i
+          ),
+          "short",
+          false
+        );
+        defaultMonth.push({ name: name, total: 0, key: i });
+        getMonthly(defaultMonth);
+      }
+    } else {
+      let date = new Date(
+        new Date().getFullYear(),
+        new Date().getMonth() + 1,
+        0
+      );
+      let defaultMonth = [];
+      for (let i = 1; i <= date.getDate(); i++) {
+        let name = helper.momentDate(
+          new Date(
+            date.getFullYear(),
+            date.getMonth() >= 10 ? date.getMonth() : "0" + date.getMonth(),
+            i
+          ),
+          "short",
+          false
+        );
+        defaultMonth.push({ name: name, total: 0, key: i });
+        getMonthly(defaultMonth);
+      }
+    }
+  }, [month, year]);
+  const getMonthly = (defaultMonth) => {
     let date = new Date();
+    if (month) {
+      date.setMonth(month);
+    }
+    if (year) {
+      date.setFullYear(year);
+    }
 
     API.monthlyReport({ shop_id: shop_id, month: date.getMonth() })
       .then((response) => {
-        console.log(response);
-        let tmp = [...data];
+        // console.log(response);
+        let tmp = [...defaultMonth];
         response.data.result.forEach((ele, index) => {
           // let key = 0;
           let date = new Date(ele.order_date);
@@ -75,7 +105,7 @@ const MonthlyDashboard = (props) => {
             }
           });
         });
-        console.log(tmp);
+        // console.log(tmp);
         setData(tmp);
       })
       .catch((error) => {
