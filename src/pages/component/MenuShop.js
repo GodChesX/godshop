@@ -161,16 +161,19 @@ function DashboardContent(props) {
           <Divider />
           <List component="nav">
             <React.Fragment>
-              <ListItemButton
-                onClick={() => {
-                  window.location.href = "/home";
-                }}
-              >
-                <ListItemIcon>
-                  <HomeIcon />
-                </ListItemIcon>
-                <ListItemText primary="หน้าแรก" />
-              </ListItemButton>
+              {admin?.permission_name == "admin" ? (
+                <ListItemButton
+                  onClick={() => {
+                    window.location.href = "/home";
+                  }}
+                >
+                  <ListItemIcon>
+                    <HomeIcon />
+                  </ListItemIcon>
+                  <ListItemText primary="หน้าแรก" />
+                </ListItemButton>
+              ) : null}
+
               <ListItemButton
                 onClick={() => {
                   window.location.href = "/shop/" + props.shop_id;
