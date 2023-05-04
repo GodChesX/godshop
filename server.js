@@ -53,10 +53,10 @@ const connection = mysql.createConnection({
   database: "godshop",
 });
 
-connection.connect(function (err) {
-  if (err) throw err;
-  console.log("Connect!!");
-});
+// connection.connect(function (err) {
+//   if (err) throw err;
+//   console.log("Connect!!");
+// });
 // var qry = "SELECT * FROM ADMIN";
 // console.log(username, password);
 // return return response.redirect('/');
