@@ -43,9 +43,9 @@ const CardProduct = (props) => {
               <Typography variant="body2" color="text.secondary">
                 จำนวนคงเหลือ {data.stock} ชิ้น
               </Typography>
-              <Typography variant="body2" color="text.primary">
+              {/* <Typography variant="body2" color="text.primary">
                 ราคา {data.price} บาท
-              </Typography>
+              </Typography> */}
             </CardContent>
           </CardActionArea>
           <CardActions>

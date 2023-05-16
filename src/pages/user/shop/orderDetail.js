@@ -132,7 +132,7 @@ const OrderDetail = (props) => {
   };
 
   const removeOrderProduct = (id, od_id) => {
-    API.removeOrderProduct({ product_id: id, order_id: od_id })
+    API.removeOrderProduct({ id: id, order_id: od_id })
       .then((response) => {
         getOrderDetail(od_id);
         getOrder();

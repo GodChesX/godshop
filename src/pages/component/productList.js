@@ -98,7 +98,7 @@ const ProductList = (props) => {
   // const [search, setSearch] = useState("");
   const [search, setSearch] = useState("");
   const [remark, setRemark] = useState("");
-
+  const [stock, setStock] = useState([]);
   //   const [countAllItem, setCountAllItem] = useState(null);
   //   const [countAllPrice, setCountAllPrice] = useState(null);
 
@@ -114,11 +114,34 @@ const ProductList = (props) => {
   const getProduct = () => {
     API.getProduct(shop_id, true)
       .then((response) => {
-        //   console.log(response);
-        var product = response.data.result.map((e) => {
-          e.count = 1;
-          return e;
+        console.log("product_list", response.data.result);
+        let product = [];
+        setStock(
+          response.data.result.map((ele) => {
+            return { id: ele.id, stock: ele.stock };
+          })
+        );
+        response.data.result.forEach((e) => {
+          stock.push({ id: e.id, stock: parseInt(stock), stock_inuse: 0 });
+          e.price.forEach((ele) => {
+            product.push({
+              id: e.id,
+              price_id: ele.id,
+              price: ele.price,
+              amount: ele.amount,
+              product_name: e.product_name + " x " + ele.amount,
+              product_image: e.product_image,
+              stock: Math.floor(e.stock / ele.amount),
+              full_stock: e.stock,
+              count: 1,
+            });
+          });
         });
+        // var product = response.data.result.map((e) => {
+        //   e.count = 1;
+        //   return e;
+        // });
+        console.log(product);
         setProduct(product);
         setProductTmp(product);
       })
@@ -298,12 +321,15 @@ const ProductList = (props) => {
                         setProduct(tmp);
                       }}
                       add={() => {
+                        if (ele.full_stock < ele.amount) {
+                          return;
+                        }
                         let tmp = [...addItem];
                         // let check = tmp.filter(e=> e.id == ele.id);
                         let check = false;
                         // if(check.length > 1){
                         tmp = tmp.map((e) => {
-                          if (e.id == ele.id) {
+                          if (e.price_id == ele.price_id) {
                             e.count += ele.count;
                             e.total = e.price * e.count;
                             check = true;
@@ -313,14 +339,43 @@ const ProductList = (props) => {
                         if (!check) {
                           tmp.push({
                             id: ele.id,
+                            price_id: ele.price_id,
                             name: ele.product_name,
                             price: ele.price,
+                            amount: ele.amount,
                             total: ele.price * ele.count,
                             count: ele.count,
                           });
                         }
                         // }
                         setAddItem(tmp);
+                        let tmpP = [...product];
+                        console.log(product);
+                        let newP = tmpP.map((e) => {
+                          let new_stock = e.full_stock;
+                          if (e.id == ele.id)
+                            new_stock = new_stock - ele.amount;
+                          return {
+                            ...e,
+                            stock: Math.floor(new_stock / e.amount),
+                            full_stock: new_stock,
+                          };
+                        });
+                        // console.log(newP);
+                        setProduct(newP);
+                        let tmpTmpP = [...productTmp];
+                        // console.log(product);
+                        let newTmpP = tmpTmpP.map((e) => {
+                          let new_stock = e.full_stock;
+                          if (e.id == ele.id)
+                            new_stock = new_stock - ele.amount;
+                          return {
+                            ...e,
+                            stock: Math.floor(new_stock / e.amount),
+                            full_stock: new_stock,
+                          };
+                        });
+                        setProductTmp(newTmpP);
                       }}
                     />
                   );
@@ -442,26 +497,24 @@ const ProductList = (props) => {
                             setAddItem(tmp);
                           }}
                         /> */}
-                      {newOrder ? (
-                        <input
-                          type="number"
-                          min="1"
-                          max="10000"
-                          // defaultValue={ele.price}
-                          value={ele.price}
-                          onChange={(value) => {
-                            // console.log(value);
-                            // setRemark(value.target.value);
-                            let tmp = [...addItem];
-                            // tmp.splice(index, 1);
-                            tmp[index].price = value.target.value;
-                            tmp[index].total = ele.count * tmp[index].pric;
-                            setAddItem(tmp);
-                          }}
-                        />
-                      ) : (
-                        ele.price
-                      )}{" "}
+                      {/* {newOrder ? ( */}
+                      <input
+                        type="number"
+                        min="1"
+                        max="10000"
+                        // defaultValue={ele.price}
+                        value={ele.price}
+                        onChange={(value) => {
+                          // console.log(value);
+                          // setRemark(value.target.value);
+                          let tmp = [...addItem];
+                          // tmp.splice(index, 1);
+                          tmp[index].price = value.target.value;
+                          tmp[index].total = ele.count * tmp[index].price;
+                          setAddItem(tmp);
+                        }}
+                      />
+                      {/* // ) : ( // ele.price // )} */}
                       บาท
                     </label>
                     <label

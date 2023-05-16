@@ -103,12 +103,12 @@ const WeeklyReport = (props) => {
           d.forEach((e) => {
             returnValue.product_name = e.product_name;
             returnValue.product_image = e.product_image;
-            returnValue.count += e.total;
-            returnValue.total_price += e.price * e.total;
+            returnValue.count += e.count;
+            returnValue.total_price += e.price * e.count;
             returnValue.total_stock_price += e.stock_price * e.total;
             stock_price += e.stock_price * e.total;
-            total += e.price * e.total;
-            count_all += e.total;
+            total += e.price * e.count;
+            count_all += e.count;
           });
           return returnValue;
         });

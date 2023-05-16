@@ -104,7 +104,14 @@ const Product = (props) => {
   const [visible, setVisible] = useState(false);
   const [shop, setShop] = useState(null);
   const [search, setSearch] = useState("");
-
+  const [newProduct, setNewProduct] = useState({
+    name: "",
+    price: "",
+    stock_value: "",
+    stock_price: "",
+    custom_price: [],
+    image: null,
+  });
   const [product, setProduct] = useState([]);
   const [productTmp, setProductTmp] = useState([]);
 
@@ -119,6 +126,7 @@ const Product = (props) => {
       price: "",
       stock_value: "",
       stock_price: "",
+      custom_price: [],
       image: null,
     });
     setOpen(false);
@@ -134,6 +142,7 @@ const Product = (props) => {
       price: "",
       stock_value: "",
       stock_price: "",
+      custom_price: [],
       image: null,
     });
     setOpenEdit(false);
@@ -148,43 +157,55 @@ const Product = (props) => {
       price: "",
       stock_value: "",
       stock_price: "",
+      custom_price: [],
       image: null,
     });
     setOpenAddStock(false);
   };
-  const [newProudct, setNewProduct] = useState({
-    name: "",
-    price: "",
-    stock_value: "",
-    stock_price: "",
-    image: null,
-  });
+
   //   //   let admin = helper.getItem("admin");
   //   console.log(admin);
   const addNewProduct = () => {
-    // console.log(newProudct);
+    // console.log(newProduct);
     if (
-      newProudct.name == "" ||
-      newProudct.price == "" ||
-      newProudct.stock_price == "" ||
-      newProudct.stock_value == ""
+      newProduct.name == "" ||
+      newProduct.price == "" ||
+      newProduct.stock_price == "" ||
+      newProduct.stock_value == ""
     ) {
       return;
     }
     var formData = new FormData();
-    formData.append("name", newProudct.name);
-    formData.append("price", newProudct.price);
+    if (newProduct.custom_price.length > 0) {
+      let isNull = false;
+      newProduct.custom_price.forEach((element) => {
+        if (element.price === "" || element.amount === "") {
+          isNull = true;
+        }
+      });
+      console.log("isNull", isNull);
+      if (isNull) return;
+      else
+        formData.append(
+          "custom_price",
+          JSON.stringify(newProduct.custom_price)
+        );
+    }
+
+    formData.append("name", newProduct.name);
+    formData.append("price", newProduct.price);
+
     formData.append("shop_id", shop.id);
-    formData.append("stock_price", newProudct.stock_price);
-    formData.append("stock_value", newProudct.stock_value);
+    formData.append("stock_price", newProduct.stock_price);
+    formData.append("stock_value", newProduct.stock_value);
     formData.append("admin_id", admin.id);
-    if (newProudct.image) formData.append("image", newProudct.image.file);
+    if (newProduct.image) formData.append("image", newProduct.image.file);
     // console.log(formData);
     // for (var pair of formData.entries()) {
     //   console.log(pair[0] + ", " + pair[1]);
     // }
-    // let data = { name: newProudct.name, price: newProudct.price };
-    // if (newProudct.image) data.image = newProudct.image.file;
+    // let data = { name: newProduct.name, price: newProduct.price };
+    // if (newProduct.image) data.image = newProduct.image.file;
 
     API.addNewProduct(formData)
       .then((response) => {
@@ -203,37 +224,40 @@ const Product = (props) => {
     // xForm.append('product_image', newfile);
   };
   const editProduct = () => {
-    if (newProudct.name == "" || newProudct.price == "") {
+    if (newProduct.name == "" || newProduct.price == "") {
       return;
     }
+
     var formData = new FormData();
-    formData.append("name", newProudct.name);
-    formData.append("product_id", newProudct.product_id);
-    formData.append("price", newProudct.price);
-    // formData.append("product_id", newProudct.product_id);
+    if (newProduct.custom_price.length > 0) {
+      let isNull = false;
+      newProduct.custom_price.forEach((element) => {
+        if (element.price === "" || element.amount === "") {
+          isNull = true;
+        }
+      });
+      console.log("isNull", isNull);
+      if (isNull) return;
+      else
+        formData.append(
+          "custom_price",
+          JSON.stringify(newProduct.custom_price)
+        );
+    }
+    // var formData = new FormData();
+    formData.append("name", newProduct.name);
+    formData.append("product_id", newProduct.product_id);
+    // formData.append("price", newProduct.price);
+    // formData.append("product_id", newProduct.product_id);
     let tmpProduct = product.filter(
-      (ele) => ele.id == newProudct.product_id
+      (ele) => ele.id == newProduct.product_id
     )[0];
-    // console.log("tmpProduct", tmpProduct);
-    if (tmpProduct.product_image != newProudct?.image?.uri) {
-      if (newProudct.image?.file)
-        formData.append("image", newProudct.image.file);
-      API.editProductWithImage(formData)
-        .then((response) => {
-          setOpenEdit(false);
-          getProduct();
-          Swal.fire({
-            icon: "success",
-            title: "แก้ไขสินค้าเรียบร้อยแล้ว",
-            timer: 1000,
-          });
-          //   console.log(response);
-        })
-        .catch((error) => {
-          console.log(error);
-        });
-    } else {
-      // }
+    console.log("tmpProduct", tmpProduct);
+    console.log("newProduct?.image?.uri", newProduct?.image?.uri);
+    console.log(tmpProduct.product_image != newProduct?.image?.uri);
+    if (tmpProduct.product_image != newProduct?.image?.uri) {
+      if (newProduct.image?.file)
+        formData.append("image", newProduct.image.file);
       API.editProduct(formData)
         .then((response) => {
           setOpenEdit(false);
@@ -283,21 +307,21 @@ const Product = (props) => {
     }
   }, [admin]);
   const addStock = () => {
-    // console.log(newProudct);
-    if (newProudct.stock_price == "" || newProudct.stock_value == "") {
+    // console.log(newProduct);
+    if (newProduct.stock_price == "" || newProduct.stock_value == "") {
       return;
     }
     var formData = new FormData();
-    formData.append("product_id", newProudct.product_id);
-    formData.append("stock_price", newProudct.stock_price);
-    formData.append("stock_value", newProudct.stock_value);
+    formData.append("product_id", newProduct.product_id);
+    formData.append("stock_price", newProduct.stock_price);
+    formData.append("stock_value", newProduct.stock_value);
     formData.append("admin_id", admin.id);
     // console.log(formData);
     // for (var pair of formData.entries()) {
     //   console.log(pair[0] + ", " + pair[1]);
     // }
-    // let data = { name: newProudct.name, price: newProudct.price };
-    // if (newProudct.image) data.image = newProudct.image.file;
+    // let data = { name: newProduct.name, price: newProduct.price };
+    // if (newProduct.image) data.image = newProduct.image.file;
 
     API.addStock(formData)
       .then((response) => {
@@ -351,8 +375,8 @@ const Product = (props) => {
       });
   };
   useEffect(() => {
-    console.log("newProudct", newProudct);
-  }, [newProudct]);
+    console.log("newProduct", newProduct);
+  }, [newProduct]);
 
   useEffect(() => {
     if (!openEdit) {
@@ -361,6 +385,7 @@ const Product = (props) => {
         price: "",
         stock_value: "",
         stock_price: "",
+        custom_price: [],
         image: null,
       });
     }
@@ -429,11 +454,15 @@ const Product = (props) => {
                       data={ele}
                       onClick={() => {
                         // console.log("edit");
+                        // let tmp = ele.price;
+                        // let price = tmp[0].price;
+                        // tmp.splice(0, 1);
                         setNewProduct({
                           product_id: ele.id,
                           name: ele.product_name,
-                          price: ele.price,
+                          // price: price,
                           stock_value: ele.stock,
+                          custom_price: ele.price,
                           image: ele.product_image
                             ? {
                                 uri:
@@ -453,6 +482,7 @@ const Product = (props) => {
                           product_id: ele.id,
                           name: ele.product_name,
                           price: "",
+                          custom_price: [],
                           stock_now: ele.stock,
                           stock_value: "",
                           image: ele.product_image
@@ -504,6 +534,7 @@ const Product = (props) => {
             sx={{
               "& > :not(style)": { m: 1, width: "25ch" },
             }}
+            style={{ overflow: "scroll", height: "500px" }}
             // noValidate
             // autoComplete="off"
             // onSubmit={handleSubmit}
@@ -515,21 +546,21 @@ const Product = (props) => {
               id="product_name"
               label="ชื่อสินค้า"
               name="product_name"
-              error={newProudct.name == ""}
+              error={newProduct.name == ""}
               autoFocus
               onChange={(value) => {
                 // console.log(value);
-                setNewProduct({ ...newProudct, name: value.target.value });
+                setNewProduct({ ...newProduct, name: value.target.value });
               }}
             />
             <TextField
               required
-              label="ราคา"
+              label="ราคา/ชิ้น"
               name="price"
-              error={newProudct.price == ""}
+              error={newProduct.price == ""}
               onChange={(value) => {
                 // console.log(value);
-                setNewProduct({ ...newProudct, price: value.target.value });
+                setNewProduct({ ...newProduct, price: value.target.value });
               }}
               id="price"
               InputProps={{
@@ -538,50 +569,143 @@ const Product = (props) => {
               //   variant="standard"
             />
 
-            <Button variant="contained" component="label">
-              รูปสินค้า
-              <input
-                type="file"
-                hidden
-                name="image"
-                id="image"
-                accept="image/png, image/gif, image/jpeg"
-                onChange={(value) => {
-                  //   console.log(value);
-                  const [file] = value.target.files;
-                  setNewProduct({
-                    ...newProudct,
-                    image: { file: file, uri: URL.createObjectURL(file) },
-                  });
+            <div>
+              <label
+                style={{ cursor: "pointer" }}
+                onClick={() => {
+                  let tmp = [...newProduct.custom_price];
+                  tmp.push({ price: "", amount: "" });
+                  // console.log(tmp);
+                  // console.log(tmpProduct);
+                  setNewProduct({ ...newProduct, custom_price: tmp });
                 }}
-              />
-            </Button>
-            <br />
-            {newProudct.image ? (
-              <img
-                src={newProudct.image.uri}
-                alt="product_image"
-                style={{ objectFit: "scale-down" }}
-                height="288"
-              />
-            ) : (
-              <img
-                src={require("../../../../public/image/imgNotFound.jpg")}
-                alt="product_image"
-                style={{ objectFit: "scale-down" }}
-                height="288"
-              />
-            )}
+              >
+                เพิ่มราคาต่อหลายชิ้น
+              </label>
+              <div>
+                {newProduct.custom_price.map((e, i) => {
+                  return (
+                    <div
+                      key={"custom" + i}
+                      style={{
+                        display: "flex",
+                        marginBottom: 10,
+                        alignItems: "center",
+                      }}
+                    >
+                      <TextField
+                        required
+                        label="จำนวนชิ้น"
+                        size={"small"}
+                        name="price"
+                        value={e.amount}
+                        error={e.amount == ""}
+                        onChange={(value) => {
+                          // console.log(value);
+                          let tmp = [...newProduct.custom_price];
+                          tmp[i].amount = value.target.value;
+                          setNewProduct({
+                            ...newProduct,
+                            custom_price: tmp,
+                          });
+                        }}
+                        id="price"
+                        InputProps={{
+                          inputComponent: NumericFormatCustomValue,
+                        }}
+                        //   variant="standard"
+                      />
+                      <div style={{ marginLeft: 10 }}>
+                        <TextField
+                          required
+                          size={"small"}
+                          label="ราคา"
+                          name="price"
+                          error={e.price == ""}
+                          value={e.price}
+                          onChange={(value) => {
+                            let tmp = [...newProduct.custom_price];
+                            tmp[i].price = value.target.value;
+                            setNewProduct({
+                              ...newProduct,
+                              custom_price: tmp,
+                            });
+                          }}
+                          id="price"
+                          InputProps={{
+                            inputComponent: NumericFormatCustom,
+                          }}
+                          //   variant="standard"
+                        />
+                      </div>
+                      <div style={{ marginLeft: 10 }}>
+                        <label
+                          style={{ cursor: "pointer", color: "#f00" }}
+                          onClick={() => {
+                            let tmp = [...newProduct.custom_price];
+                            tmp.splice(i, 1);
+                            console.log("tmp delete", i);
+                            setNewProduct({
+                              ...newProduct,
+                              custom_price: tmp,
+                            });
+                          }}
+                        >
+                          ลบ
+                        </label>
+                      </div>
+                    </div>
+                  );
+                })}
+              </div>
+            </div>
+            <div>
+              <Button variant="contained" component="label">
+                รูปสินค้า
+                <input
+                  type="file"
+                  hidden
+                  name="image"
+                  id="image"
+                  accept="image/png, image/gif, image/jpeg"
+                  onChange={(value) => {
+                    //   console.log(value);
+                    const [file] = value.target.files;
+                    setNewProduct({
+                      ...newProduct,
+                      image: { file: file, uri: URL.createObjectURL(file) },
+                    });
+                  }}
+                />
+              </Button>
+              <div>
+                {newProduct.image ? (
+                  <img
+                    src={newProduct.image.uri}
+                    alt="product_image"
+                    style={{ objectFit: "scale-down" }}
+                    height="288"
+                  />
+                ) : (
+                  <img
+                    src={require("../../../../public/image/imgNotFound.jpg")}
+                    alt="product_image"
+                    style={{ objectFit: "scale-down" }}
+                    height="288"
+                  />
+                )}
+              </div>
+            </div>
             <br />
             <TextField
               required
               label="จำนวน"
-              error={newProudct.stock_value == ""}
+              error={newProduct.stock_value == ""}
               name="price"
               onChange={(value) => {
                 // console.log(value);
                 setNewProduct({
-                  ...newProudct,
+                  ...newProduct,
                   stock_value: value.target.value,
                 });
               }}
@@ -593,13 +717,13 @@ const Product = (props) => {
             />
             <TextField
               required
-              error={newProudct.stock_price == ""}
+              error={newProduct.stock_price == ""}
               label="ราคารับมา"
               name="price"
               onChange={(value) => {
                 // console.log(value);
                 setNewProduct({
-                  ...newProudct,
+                  ...newProduct,
                   stock_price: value.target.value,
                 });
               }}
@@ -645,30 +769,120 @@ const Product = (props) => {
               //   fullWidth
               id="product_name"
               label="ชื่อสินค้า"
-              value={newProudct.name}
+              value={newProduct.name}
               name="product_name"
               autoFocus
               onChange={(value) => {
                 // console.log(value);
-                setNewProduct({ ...newProudct, name: value.target.value });
+                setNewProduct({ ...newProduct, name: value.target.value });
               }}
             />
-            <TextField
+            {/* <TextField
               required
               label="ราคา"
               name="price"
-              value={newProudct.price}
+              value={newProduct.price}
               onChange={(value) => {
                 // console.log(value);
-                setNewProduct({ ...newProudct, price: value.target.value });
+                setNewProduct({ ...newProduct, price: value.target.value });
               }}
               id="price"
               InputProps={{
                 inputComponent: NumericFormatCustom,
               }}
               //   variant="standard"
-            />
-
+            /> */}
+            <div>
+              <label
+                style={{ cursor: "pointer" }}
+                onClick={() => {
+                  let tmp = [...newProduct.custom_price];
+                  tmp.push({ price: "", amount: "" });
+                  // console.log(tmp);
+                  // console.log(tmpProduct);
+                  setNewProduct({ ...newProduct, custom_price: tmp });
+                }}
+              >
+                เพิ่มราคาต่อหลายชิ้น
+              </label>
+            </div>
+            {newProduct.custom_price.map((e, i) => {
+              return (
+                <div
+                  key={"custom" + i}
+                  style={{
+                    display: "flex",
+                    marginBottom: 10,
+                    alignItems: "center",
+                  }}
+                >
+                  <TextField
+                    required
+                    label="จำนวนชิ้น"
+                    size={"small"}
+                    disabled={i == 0}
+                    name="price"
+                    value={e.amount}
+                    error={e.amount == ""}
+                    onChange={(value) => {
+                      // console.log(value);
+                      let tmp = [...newProduct.custom_price];
+                      tmp[i].amount = value.target.value;
+                      setNewProduct({
+                        ...newProduct,
+                        custom_price: tmp,
+                      });
+                    }}
+                    id="price"
+                    InputProps={{
+                      inputComponent: NumericFormatCustomValue,
+                    }}
+                    //   variant="standard"
+                  />
+                  <div style={{ marginLeft: 10 }}>
+                    <TextField
+                      required
+                      size={"small"}
+                      label="ราคา"
+                      name="price"
+                      error={e.price == ""}
+                      value={e.price}
+                      onChange={(value) => {
+                        let tmp = [...newProduct.custom_price];
+                        tmp[i].price = value.target.value;
+                        setNewProduct({
+                          ...newProduct,
+                          custom_price: tmp,
+                        });
+                      }}
+                      id="price"
+                      InputProps={{
+                        inputComponent: NumericFormatCustom,
+                      }}
+                      //   variant="standard"
+                    />
+                  </div>
+                  <div style={{ marginLeft: 10 }}>
+                    {i == 0 ? null : (
+                      <label
+                        style={{ cursor: "pointer", color: "#f00" }}
+                        onClick={() => {
+                          let tmp = [...newProduct.custom_price];
+                          tmp.splice(i, 1);
+                          console.log("tmp delete", i);
+                          setNewProduct({
+                            ...newProduct,
+                            custom_price: tmp,
+                          });
+                        }}
+                      >
+                        ลบ
+                      </label>
+                    )}
+                  </div>
+                </div>
+              );
+            })}
             <Button variant="contained" component="label">
               รูปสินค้า
               <input
@@ -681,16 +895,16 @@ const Product = (props) => {
                   //   console.log(value);
                   const [file] = value.target.files;
                   setNewProduct({
-                    ...newProudct,
+                    ...newProduct,
                     image: { file: file, uri: URL.createObjectURL(file) },
                   });
                 }}
               />
             </Button>
             <br />
-            {newProudct.image ? (
+            {newProduct.image ? (
               <img
-                src={newProudct.image.uri}
+                src={newProduct.image.uri}
                 alt="product_image"
                 style={{ objectFit: "scale-down" }}
                 height="288"
@@ -723,7 +937,7 @@ const Product = (props) => {
         aria-describedby="child-modal-description"
       >
         <Box sx={{ ...style, width: "80%" }}>
-          <h2 id="child-modal-title">เพิ่ม Stock {newProudct.name}</h2>
+          <h2 id="child-modal-title">เพิ่ม Stock {newProduct.name}</h2>
           <Box
             // component="form"
             sx={{
@@ -733,9 +947,9 @@ const Product = (props) => {
             // autoComplete="off"
             // onSubmit={handleSubmit}
           >
-            {newProudct.image ? (
+            {newProduct.image ? (
               <img
-                src={newProudct.image.uri}
+                src={newProduct.image.uri}
                 alt="product_image"
                 style={{ objectFit: "scale-down" }}
                 height="288"
@@ -749,7 +963,7 @@ const Product = (props) => {
               />
             )}
             <br />
-            <label>จำนวนคงเหลือปัจจุบัน {newProudct.stock_now} ชิ้น</label>
+            <label>จำนวนคงเหลือปัจจุบัน {newProduct.stock_now} ชิ้น</label>
             <br />
 
             <TextField
@@ -759,7 +973,7 @@ const Product = (props) => {
               onChange={(value) => {
                 // console.log(value);
                 setNewProduct({
-                  ...newProudct,
+                  ...newProduct,
                   stock_value: value.target.value,
                 });
               }}
@@ -776,7 +990,7 @@ const Product = (props) => {
               onChange={(value) => {
                 // console.log(value);
                 setNewProduct({
-                  ...newProudct,
+                  ...newProduct,
                   stock_price: value.target.value,
                 });
               }}

@@ -49,7 +49,7 @@ const WeeklyDashboard = (props) => {
 
         // console.log(loop);
       } else {
-        loop = end.getDate() - startend.getDate();
+        loop = end.getDate() - start.getDate();
       }
       console.log("loop", loop);
       let defaultWeek = [];

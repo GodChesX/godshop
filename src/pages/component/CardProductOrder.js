@@ -50,7 +50,7 @@ const CardProductOrder = (props) => {
             </CardContent>
           </CardActionArea>
           <CardActions>
-            <Updown
+            {/* <Updown
               max={parseInt(data.stock)}
               min={1}
               count={data.count}
@@ -63,7 +63,7 @@ const CardProductOrder = (props) => {
               onChange={(val) => {
                 onChange(val);
               }}
-            ></Updown>
+            ></Updown> */}
             <Button
               size="small"
               color="primary"
