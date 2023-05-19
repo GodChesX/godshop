@@ -307,7 +307,7 @@ app.prepare().then(async () => {
         // // return return response.redirect('/');
         connection.query(
           qry,
-          [product_name, fileName + "." + originalname[1], shop_id, price],
+          [product_name, fileName + "." + originalname[1], shop_id],
           function (err, result, fields) {
             console.log(result.insertId);
             if (!err) {
@@ -381,7 +381,7 @@ app.prepare().then(async () => {
       // // return return response.redirect('/');
       connection.query(
         qry,
-        [product_name, shop_id, price],
+        [product_name, shop_id],
         function (err, result, fields) {
           console.log(result.insertId);
           if (!err) {
