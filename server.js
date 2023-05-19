@@ -303,18 +303,18 @@ app.prepare().then(async () => {
         let product_name = request.body.name;
         let shop_id = request.body.shop_id;
         let price = request.body.price;
-        var qry = `insert into PRODUCT (product_name,product_image,shop_id) values (?,?,?);`;
+        var qry = `insert into product (product_name,product_image,shop_id) values (?,?,?);`;
         // // return return response.redirect('/');
         connection.query(
           qry,
           [product_name, fileName + "." + originalname[1], shop_id],
           function (err, result, fields) {
-            console.log(result.insertId);
+            // console.log(result.insertId);
             if (!err) {
               let stock_price = request.body.stock_price;
               let stock_value = request.body.stock_value;
               let admin_id = request.body.admin_id;
-              var qryStock = `insert into PRODUCT_STOCK (product_id, stock_price, stock_in, stock_value,admin_id) values (?, ?, ?, ?, ?)`;
+              var qryStock = `insert into product_stock (product_id, stock_price, stock_in, stock_value,admin_id) values (?, ?, ?, ?, ?)`;
               connection.query(
                 qryStock,
                 [
@@ -377,7 +377,7 @@ app.prepare().then(async () => {
       let product_name = request.body.name;
       let shop_id = request.body.shop_id;
       let price = request.body.price;
-      var qry = `insert into PRODUCT (product_name,shop_id) values (?,?);`;
+      var qry = `insert into product (product_name,shop_id) values (?,?);`;
       // // return return response.redirect('/');
       connection.query(
         qry,
@@ -388,7 +388,7 @@ app.prepare().then(async () => {
             let stock_price = request.body.stock_price;
             let stock_value = request.body.stock_value;
             let admin_id = request.body.admin_id;
-            var qryStock = `insert into PRODUCT_STOCK (product_id, stock_price, stock_in, stock_value,admin_id) values (?, ?, ?, ?, ?)`;
+            var qryStock = `insert into product_stock (product_id, stock_price, stock_in, stock_value,admin_id) values (?, ?, ?, ?, ?)`;
             connection.query(
               qryStock,
               [
@@ -703,7 +703,7 @@ app.prepare().then(async () => {
     let stock_value = request.body.stock_value;
     let admin_id = request.body.admin_id;
     let product_id = request.body.product_id;
-    var qryStock = `insert into PRODUCT_STOCK (product_id, stock_price, stock_in, stock_value,admin_id) values (?, ?, ?, ?, ?)`;
+    var qryStock = `insert into product_stock (product_id, stock_price, stock_in, stock_value,admin_id) values (?, ?, ?, ?, ?)`;
     connection.query(
       qryStock,
       [product_id, stock_price, stock_value, stock_value, admin_id],
@@ -923,7 +923,7 @@ app.prepare().then(async () => {
         if (!err) {
           console.log(result);
           result.forEach((ele, index) => {
-            var returnStock = `update PRODUCT_STOCK set stock_value = ? where id = ?`;
+            var returnStock = `update product_stock set stock_value = ? where id = ?`;
             connection.query(
               returnStock,
               [ele.total + ele.stock_value, ele.stock_id],
@@ -989,7 +989,7 @@ app.prepare().then(async () => {
         function (errInsert, resultInsert, fieldsInsert) {
           if (!errInsert) {
             let checkout_id = resultInsert.insertId;
-            var qryStock = `select * from PRODUCT_STOCK where product_id = ? and stock_value > 0
+            var qryStock = `select * from product_stock where product_id = ? and stock_value > 0
             order by id`;
             let count = ele.count * ele.amount;
             connection.query(
@@ -1006,8 +1006,8 @@ app.prepare().then(async () => {
                       count = count - e.stock_value;
                       let stock_value = 0;
                       let stock_id = e.id;
-                      let update_stock = `update PRODUCT_STOCK set stock_value = ? where id = ?`;
-                      // let update_stock = `select * from PRODUCT_STOCK where id = ?`;
+                      let update_stock = `update product_stock set stock_value = ? where id = ?`;
+                      // let update_stock = `select * from product_stock where id = ?`;
 
                       // console.log("stock_id", stock_id);
                       // console.log("update_stock", update_stock);
@@ -1019,7 +1019,7 @@ app.prepare().then(async () => {
                         function (errUpdateSt, resUpdateSt, fieldUpdateSt) {
                           if (!errUpdateSt) {
                             //   console.log("resUpdateSt", resUpdateSt);
-                            //   let insert_checkout = `select * from PRODUCT_STOCK where  id = ?`;
+                            //   let insert_checkout = `select * from product_stock where  id = ?`;
                             //   console.log(
                             //     "order_id",
                             //     order_id,
@@ -1067,8 +1067,8 @@ app.prepare().then(async () => {
                       console.log(count, e.stock_value);
                       let stock_value = e.stock_value - count;
                       let stock_id = e.id;
-                      let update_stock = `update PRODUCT_STOCK set stock_value = ? where id = ?`;
-                      // let update_stock = `select * from PRODUCT_STOCK where id = ?`;
+                      let update_stock = `update product_stock set stock_value = ? where id = ?`;
+                      // let update_stock = `select * from product_stock where id = ?`;
 
                       // console.log("stock_id", stock_id);
                       // console.log("update_stock", update_stock);
@@ -1098,7 +1098,7 @@ app.prepare().then(async () => {
                             );
                             //   console.log("resUpdateSt", resUpdateSt);
                             //   let insert_checkout = `insert into CHECKOUT_DETAIL (checkout_id, total, stock_id, price) values (?, ?, ?, ?);`;
-                            //   let insert_checkout = `select * from PRODUCT_STOCK where  id = ?`;
+                            //   let insert_checkout = `select * from product_stock where  id = ?`;
                             // let insert_checkout = `insert into CHECKOUT_DETAIL (checkout_id, total, stock_id, price, amount, product_price_id) values (?, ?, ?, ?, ?, ?);`;
                             // connection.query(
                             //   insert_checkout,
@@ -1226,7 +1226,7 @@ app.prepare().then(async () => {
               function (errInsert, resultInsert, fieldsInsert) {
                 if (!errInsert) {
                   let checkout_id = resultInsert.insertId;
-                  var qryStock = `select * from PRODUCT_STOCK where product_id = ? and stock_value > 0
+                  var qryStock = `select * from product_stock where product_id = ? and stock_value > 0
                   order by id`;
                   let count = ele.count * ele.amount;
                   connection.query(
@@ -1243,8 +1243,8 @@ app.prepare().then(async () => {
                             count = count - e.stock_value;
                             let stock_value = 0;
                             let stock_id = e.id;
-                            let update_stock = `update PRODUCT_STOCK set stock_value = ? where id = ?`;
-                            // let update_stock = `select * from PRODUCT_STOCK where id = ?`;
+                            let update_stock = `update product_stock set stock_value = ? where id = ?`;
+                            // let update_stock = `select * from product_stock where id = ?`;
 
                             // console.log("stock_id", stock_id);
                             // console.log("update_stock", update_stock);
@@ -1260,7 +1260,7 @@ app.prepare().then(async () => {
                               ) {
                                 if (!errUpdateSt) {
                                   //   console.log("resUpdateSt", resUpdateSt);
-                                  //   let insert_checkout = `select * from PRODUCT_STOCK where  id = ?`;
+                                  //   let insert_checkout = `select * from product_stock where  id = ?`;
                                   //   console.log(
                                   //     "order_id",
                                   //     order_id,
@@ -1314,8 +1314,8 @@ app.prepare().then(async () => {
                             console.log(count, e.stock_value);
                             let stock_value = e.stock_value - count;
                             let stock_id = e.id;
-                            let update_stock = `update PRODUCT_STOCK set stock_value = ? where id = ?`;
-                            // let update_stock = `select * from PRODUCT_STOCK where id = ?`;
+                            let update_stock = `update product_stock set stock_value = ? where id = ?`;
+                            // let update_stock = `select * from product_stock where id = ?`;
 
                             // console.log("stock_id", stock_id);
                             // console.log("update_stock", update_stock);
@@ -1353,7 +1353,7 @@ app.prepare().then(async () => {
                                   );
                                   //   console.log("resUpdateSt", resUpdateSt);
                                   //   let insert_checkout = `insert into CHECKOUT_DETAIL (checkout_id, total, stock_id, price) values (?, ?, ?, ?);`;
-                                  //   let insert_checkout = `select * from PRODUCT_STOCK where  id = ?`;
+                                  //   let insert_checkout = `select * from product_stock where  id = ?`;
                                   // let insert_checkout = `insert into CHECKOUT_DETAIL (checkout_id, total, stock_id, price, amount, product_price_id) values (?, ?, ?, ?, ?, ?);`;
                                   // connection.query(
                                   //   insert_checkout,
@@ -1469,7 +1469,7 @@ app.prepare().then(async () => {
                       if (!err) {
                         console.log("result qryProduct", result);
                         result.forEach((ele, index) => {
-                          var returnStock = `update PRODUCT_STOCK set stock_value = ? where id = ?`;
+                          var returnStock = `update product_stock set stock_value = ? where id = ?`;
                           connection.query(
                             returnStock,
                             [ele.total + ele.stock_value, ele.stock_id],
