@@ -17,7 +17,7 @@ import Link from "@mui/material/Link";
 import MenuIcon from "@mui/icons-material/Menu";
 import ChevronLeftIcon from "@mui/icons-material/ChevronLeft";
 import NotificationsIcon from "@mui/icons-material/Notifications";
-import { mainListItems, secondaryListItems } from "../component/listItems";
+// import { mainListItems, secondaryListItems } from "../component/listItems";
 import Chart from "../component/Chart";
 import Deposits from "../component/Deposits";
 import Orders from "../component/Orders";
