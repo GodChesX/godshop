@@ -11,7 +11,7 @@ import LayersIcon from "@mui/icons-material/Layers";
 import AssignmentIcon from "@mui/icons-material/Assignment";
 import LogoutIcon from "@mui/icons-material/Logout";
 import helper from "../../utils/helper";
-export const mainListItems = (
+export default mainListItems = (
   <React.Fragment>
     <ListItemButton>
       <ListItemIcon>
