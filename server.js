@@ -434,7 +434,7 @@ app.prepare().then(async () => {
                           });
                           return response.json({
                             success: 1000,
-                            description: "แก้ไขสินค้าเสร็จสิ้น",
+                            description: "เพิ่มสินค้าเสร็จสิ้น",
                           });
                         }
                       }
@@ -447,6 +447,10 @@ app.prepare().then(async () => {
         }
       );
     }
+    return response.json({
+      success: 1000,
+      description: "เพิ่มสินค้าเสร็จสิ้น",
+    });
     // console.log(originalname);
   });
 
