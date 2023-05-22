@@ -978,7 +978,7 @@ app.prepare().then(async () => {
 
     item.forEach((ele, index) => {
       console.log(ele.name);
-      let insert_checkout = `insert into CHECKOUT_DETAIL (checkout_id, total, price, count, price_id) values (?, ?, ?, ?, ?);`;
+      let insert_checkout = `insert into checkout_detail (checkout_id, total, price, count, price_id) values (?, ?, ?, ?, ?);`;
       connection.query(
         insert_checkout,
         [
@@ -1040,7 +1040,7 @@ app.prepare().then(async () => {
                               "before insert checkout_detail_stock count = ",
                               count
                             );
-                            // let insert_checkout = `insert into CHECKOUT_DETAIL (checkout_id, total, price, count, product_price_id) values (?, ?, ?, ?, ?, ?);`;
+                            // let insert_checkout = `insert into checkout_detail (checkout_id, total, price, count, product_price_id) values (?, ?, ?, ?, ?, ?);`;
                             connection.query(
                               qryCDS,
                               [checkout_id, stock_id, e.stock_value],
@@ -1085,7 +1085,7 @@ app.prepare().then(async () => {
                           if (!errUpdateSt) {
                             let qryCDS = `insert into checkout_detail_stock (checkout_detail_id, stock_id,total)
                                  value (?,?,?)`;
-                            // let insert_checkout = `insert into CHECKOUT_DETAIL (checkout_id, total, price, count, product_price_id) values (?, ?, ?, ?, ?, ?);`;
+                            // let insert_checkout = `insert into checkout_detail (checkout_id, total, price, count, product_price_id) values (?, ?, ?, ?, ?, ?);`;
                             connection.query(
                               qryCDS,
                               [checkout_id, stock_id, count],
@@ -1101,9 +1101,9 @@ app.prepare().then(async () => {
                               }
                             );
                             //   console.log("resUpdateSt", resUpdateSt);
-                            //   let insert_checkout = `insert into CHECKOUT_DETAIL (checkout_id, total, stock_id, price) values (?, ?, ?, ?);`;
+                            //   let insert_checkout = `insert into checkout_detail (checkout_id, total, stock_id, price) values (?, ?, ?, ?);`;
                             //   let insert_checkout = `select * from product_stock where  id = ?`;
-                            // let insert_checkout = `insert into CHECKOUT_DETAIL (checkout_id, total, stock_id, price, amount, product_price_id) values (?, ?, ?, ?, ?, ?);`;
+                            // let insert_checkout = `insert into checkout_detail (checkout_id, total, stock_id, price, amount, product_price_id) values (?, ?, ?, ?, ?, ?);`;
                             // connection.query(
                             //   insert_checkout,
                             //   [
@@ -1198,7 +1198,7 @@ app.prepare().then(async () => {
     //   console.log("price_id,", ele.price_id);
     // });
     // return;
-    var qryAddOrder = `insert into CHECKOUT (remark,admin_id,shop_id) values (?,?,?);`;
+    var qryAddOrder = `insert into checkout (remark,admin_id,shop_id) values (?,?,?);`;
     // var qryAddOrder = `select id from checkout where id = 40`;
 
     var sync = true;
@@ -1215,7 +1215,7 @@ app.prepare().then(async () => {
           console.log(order_id);
           item.forEach((ele, index) => {
             console.log(ele.name);
-            let insert_checkout = `insert into CHECKOUT_DETAIL (checkout_id, total, price, count, price_id) values (?, ?, ?, ?, ?);`;
+            let insert_checkout = `insert into checkout_detail (checkout_id, total, price, count, price_id) values (?, ?, ?, ?, ?);`;
             connection.query(
               insert_checkout,
               [
@@ -1281,7 +1281,7 @@ app.prepare().then(async () => {
                                     "before insert checkout_detail_stock count = ",
                                     count
                                   );
-                                  // let insert_checkout = `insert into CHECKOUT_DETAIL (checkout_id, total, price, count, product_price_id) values (?, ?, ?, ?, ?, ?);`;
+                                  // let insert_checkout = `insert into checkout_detail (checkout_id, total, price, count, product_price_id) values (?, ?, ?, ?, ?, ?);`;
                                   connection.query(
                                     qryCDS,
                                     [checkout_id, stock_id, e.stock_value],
@@ -1336,7 +1336,7 @@ app.prepare().then(async () => {
                                 if (!errUpdateSt) {
                                   let qryCDS = `insert into checkout_detail_stock (checkout_detail_id, stock_id,total)
                                        value (?,?,?)`;
-                                  // let insert_checkout = `insert into CHECKOUT_DETAIL (checkout_id, total, price, count, product_price_id) values (?, ?, ?, ?, ?, ?);`;
+                                  // let insert_checkout = `insert into checkout_detail (checkout_id, total, price, count, product_price_id) values (?, ?, ?, ?, ?, ?);`;
                                   connection.query(
                                     qryCDS,
                                     [checkout_id, stock_id, count],
@@ -1356,9 +1356,9 @@ app.prepare().then(async () => {
                                     }
                                   );
                                   //   console.log("resUpdateSt", resUpdateSt);
-                                  //   let insert_checkout = `insert into CHECKOUT_DETAIL (checkout_id, total, stock_id, price) values (?, ?, ?, ?);`;
+                                  //   let insert_checkout = `insert into checkout_detail (checkout_id, total, stock_id, price) values (?, ?, ?, ?);`;
                                   //   let insert_checkout = `select * from product_stock where  id = ?`;
-                                  // let insert_checkout = `insert into CHECKOUT_DETAIL (checkout_id, total, stock_id, price, amount, product_price_id) values (?, ?, ?, ?, ?, ?);`;
+                                  // let insert_checkout = `insert into checkout_detail (checkout_id, total, stock_id, price, amount, product_price_id) values (?, ?, ?, ?, ?, ?);`;
                                   // connection.query(
                                   //   insert_checkout,
                                   //   [
